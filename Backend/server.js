@@ -50,6 +50,11 @@ const PostSchema = new mongoose.Schema({
 
 const Post = mongoose.model("BlogPost", PostSchema);
 
+app.get("/", (req,res)=>{
+   res.render("Home")
+  
+});
+
 // Add Post API
 app.post("/api/posts", upload.single("image"), async (req, res) => {
    try {
