@@ -5,7 +5,6 @@ const cors = require("cors");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-// const fs = require("fs");
 
 const app = express();
 app.use(express.json());
@@ -27,7 +26,6 @@ console.log("✅ Cloudinary Configured: ", {
     cloud_name: cloudinary.config().cloud_name,
     api_key: cloudinary.config().api_key ? "****" : "Not Set", // Hide API key for security
  });
- 
 
 // Set up Multer with Cloudinary storage
 const storage = new CloudinaryStorage({
@@ -38,7 +36,7 @@ const storage = new CloudinaryStorage({
        public_id: (req, file) => `${Date.now()}-${file.originalname}`, // Unique filename
     },
  });
- 
+
  const upload = multer({ storage });
 
 // Blog Post Schema
@@ -50,9 +48,9 @@ const PostSchema = new mongoose.Schema({
 
 const Post = mongoose.model("BlogPost", PostSchema);
 
-app.get("/", (req,res)=>{
-   res.render("Home")
-  
+// Root Route
+app.get("/", (req, res) => {
+   res.send("Welcome to the Blog Post API");
 });
 
 // Add Post API
@@ -63,9 +61,6 @@ app.post("/api/posts", upload.single("image"), async (req, res) => {
 
       // Upload Image to Cloudinary
       const result = await cloudinary.uploader.upload(imagePath, { folder: "blog_posts" });
-
-      // Delete Local File After Upload
-    //   fs.unlinkSync(imagePath);
 
       const newPost = new Post({ title, image: result.secure_url, description });
       await newPost.save();
@@ -98,10 +93,7 @@ app.get("/api/posts", async (req, res) => {
    }
 });
 
-
-
-//Update blog post
-
+// Update blog post
 app.put("/api/posts/:id", upload.single("image"), async (req, res) => {
    try {
       const { title, description } = req.body;
@@ -124,7 +116,7 @@ app.put("/api/posts/:id", upload.single("image"), async (req, res) => {
    }
 });
 
-//Delete blog post
+// Delete blog post
 app.delete("/api/posts/:id", async (req, res) => {
    try {
       await Post.findByIdAndDelete(req.params.id);
@@ -134,8 +126,8 @@ app.delete("/api/posts/:id", async (req, res) => {
    }
 });
 
-
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 module.exports = app;
